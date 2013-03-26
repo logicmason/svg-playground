@@ -12,6 +12,18 @@
         margin-right: 2px;
         background-color: teal;
       }
+      .axis path,
+      .axis line {
+          fill: none;
+          stroke: black;
+          shape-rendering: crispEdges;
+      }
+
+      .axis text {
+          font-family: sans-serif;
+          font-size: 11px;
+      }
+
     </style>
   </head>
   <body>
@@ -98,10 +110,12 @@
           .attr("text-anchor", "middle");
 
       var dataset3 = [
-        [5, 20], [480, 70], [250, 50], [100, 39], [330, 65],
-        [410, 12], [475, 44], [25, 67], [85, 21], [220, 83]
+        [5, 20], [480, 37], [250, 50], [100, 39], [330, 65],
+        [410, 12], [475, 94], [25, 67], [85, 21], [220, 83],
+        [600, 150]
       ];
 
+      h = 150;
       var svg3 = d3.select("body")
                   .append("svg")
                   .attr("width", w)
@@ -109,11 +123,12 @@
       var scale = d3.scale.linear();
       var scaleX = d3.scale.linear()
         .domain([0, d3.max(dataset3, function(d) { return d[0]; })])
-        .range([10, w - 10]);
+        .range([25, w - 20]);
 
+      var maxY = d3.max(dataset3, function(d) { return d[1]; })
       var scaleY = d3.scale.linear()
                     .domain([0, d3.max(dataset3, function(d) { return d[1]; })])
-                    .range([10, h - 10]);
+                    .range([h - 20, 20]);
 
       svg3.selectAll("circle")
         .data(dataset3)
@@ -121,7 +136,7 @@
         .append("circle")
         .attr("cx", function(d) { return scaleX(d[0]); })
         .attr("cy", function(d) { return scaleY(d[1]); })
-        .attr("r", function(d) { return Math.sqrt(h - d[1]); })
+        .attr("r", function(d) { return Math.sqrt(h - scaleY(d[1])); })
 
       svg3.selectAll("text")
         .data(dataset3)
@@ -129,11 +144,28 @@
         .append("text")
         .text(function(d) { return d[0] + "," + d[1]; })
         .attr("x", function(d) { return scaleX(d[0]); })
-        .attr("y", function(d) { return scaleY(d[1] + Math.sqrt(h-d[1])) + 11; })
+        .attr("y", function(d) { return scaleY(d[1]) - Math.sqrt(h - scaleY(d[1])); })
         .attr("text-anchor", "middle")
         .attr("font-size", "11px")
         .attr("fill", "gray");
 
+      var axisX = d3.svg.axis()
+                    .scale(scaleX)
+                    .orient("bottom");
+
+      var axisY = d3.svg.axis()
+                    .scale(scaleY)
+                    .orient("left")
+
+      svg3.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(0," + (h - 20) + ")")
+          .call(axisX);
+
+      svg3.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(" + 25 + ",0)")
+          .call(axisY);
 
       var svg2 = d3.select("body")
                   .append("svg")
